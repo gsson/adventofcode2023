@@ -47,11 +47,25 @@ fn part2(input: &str) -> i32 {
 }
 
 fn calibration_value(input: &str, table: &[(&str, i32)]) -> i32 {
-    input
-        .lines()
-        .map(|line| parse_digits(line, table))
-        .map(|digits| make_number(&digits))
-        .sum()
+    input.lines().map(|line| parse_digits(line, table)).sum()
+}
+
+fn parse_digits(s: &str, table: &[(&str, i32)]) -> i32 {
+    let mut it = str_tails(s).filter_map(|tail| match_digit(tail, table));
+
+    let tens = it.next().expect("digit");
+    let ones = it.last().unwrap_or(tens);
+    tens * 10 + ones
+}
+
+fn str_tails(mut s: &str) -> impl Iterator<Item = &str> + '_ {
+    std::iter::from_fn(move || match s {
+        "" => None,
+        next => {
+            s = &next[1..];
+            Some(next)
+        }
+    })
 }
 
 fn match_digit(s: &str, table: &[(&str, i32)]) -> Option<i32> {
@@ -62,25 +76,6 @@ fn match_digit(s: &str, table: &[(&str, i32)]) -> Option<i32> {
     }
 
     None
-}
-
-fn parse_digits(mut s: &str, table: &[(&str, i32)]) -> Vec<i32> {
-    let mut digits = Vec::new();
-    while !s.is_empty() {
-        if let Some(digit) = match_digit(s, table) {
-            digits.push(digit);
-        }
-        s = &s[1..];
-    }
-    digits
-}
-
-fn make_number(digits: &[i32]) -> i32 {
-    match digits[..] {
-        [digit] => digit * 10 + digit,
-        [tens, .., ones] => tens * 10 + ones,
-        _ => unreachable!(),
-    }
 }
 
 #[test]
