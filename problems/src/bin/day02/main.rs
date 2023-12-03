@@ -1,3 +1,4 @@
+use adventofcode2023_common::StrExt;
 use std::cmp::max;
 
 const INPUT: &str = include_str!("input.txt");
@@ -27,7 +28,7 @@ fn part2(input: &str) -> i32 {
 
 fn parse_game(line: &str) -> Option<(i32, Vec<[i32; 3]>)> {
     let (game, subsets) = line.split_once(": ")?;
-    let game = game.strip_prefix("Game ")?.parse::<i32>().ok()?;
+    let game = game.strip_prefix("Game ")?.to_i32();
     let subsets = subsets
         .split("; ")
         .filter_map(parse_subset)
@@ -40,7 +41,7 @@ fn parse_subset(subset: &str) -> Option<[i32; 3]> {
         .split(", ")
         .filter_map(|colour| colour.split_once(' '))
         .try_fold([0, 0, 0], |[r, g, b], (n, colour)| {
-            let n = n.parse::<i32>().ok()?;
+            let n = n.to_i32();
             match colour {
                 "red" => Some([n, g, b]),
                 "green" => Some([r, n, b]),
