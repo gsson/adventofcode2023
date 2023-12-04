@@ -29,10 +29,7 @@ fn part2(input: &str) -> i32 {
         })
         .collect::<Vec<_>>();
 
-    (0..cards.len())
-        .map(|i| scratch_and_win(&mut cards[i..]))
-        .sum::<i32>()
-        + cards.len() as i32
+    scratch_and_win(&mut Unresolved(cards.len()), &mut cards)
 }
 
 fn parse_card(line: &str) -> Option<usize> {
@@ -52,15 +49,18 @@ enum Cards {
     Unresolved(usize),
 }
 
-fn scratch_and_win(cards: &mut [Cards]) -> i32 {
-    match cards[0] {
+fn scratch_and_win(head: &mut Cards, tail: &mut [Cards]) -> i32 {
+    match *head {
         Resolved(n) => n,
         Unresolved(won_cards) => {
-            let n = (1..won_cards + 1)
-                .map(|i| scratch_and_win(&mut cards[i..]))
+            let n = (0..won_cards)
+                .map(|i| match &mut tail[i..] {
+                    [head, tail @ ..] => scratch_and_win(head, tail),
+                    _ => 0,
+                })
                 .sum::<i32>()
                 + won_cards as i32;
-            cards[0] = Resolved(n);
+            *head = Resolved(n);
             n
         }
     }
