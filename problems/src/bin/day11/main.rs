@@ -51,24 +51,19 @@ fn sum_absolute_pairwise_differences(v: Vec<i64>) -> i64 {
         .sum()
 }
 
+fn axis_distance(iter: impl Iterator<Item = i64>, expansion_factor: i64) -> i64 {
+    let mut values = iter.collect::<Vec<_>>();
+    values.sort_unstable();
+    let values = expand(values, expansion_factor);
+    sum_absolute_pairwise_differences(values)
+}
+
 fn solve(input: &str, expansion_factor: i64) -> i64 {
     let input = parse_input(input);
-    let mut xs = input
-        .iter()
-        .copied()
-        .map(|Point([x, _])| x)
-        .collect::<Vec<_>>();
-    xs.sort_unstable();
-    let mut ys = input
-        .iter()
-        .copied()
-        .map(|Point([_, y])| y)
-        .collect::<Vec<_>>();
-    ys.sort_unstable();
-    let xs = expand(xs, expansion_factor);
-    let ys = expand(ys, expansion_factor);
+    let x = axis_distance(input.iter().map(|Point([x, _])| *x), expansion_factor);
+    let y = axis_distance(input.iter().map(|Point([_, y])| *y), expansion_factor);
 
-    sum_absolute_pairwise_differences(xs) + sum_absolute_pairwise_differences(ys)
+    x + y
 }
 
 #[test]
